@@ -6,12 +6,18 @@ public class PlayerMovement : MonoBehaviour
 {
     private const float WALKING_VELOCITY = 2f;
     private const float JUMPING_VELOCITY = 7f;
-    private const float HORIZONTAL_SCREEN_LIMIT = 3.87f;
-    private const float VERTICAL_SCREEN_LIMIT = 2.15f;
+    
+    private const string GEM_TAG = "Gem";
+    private const string MONSTER_TAG = "Monster";
+    private const string GROUND_BLOCKS_TAG = "HardBlock";
 
-    private AudioSource audioSource;
+    [SerializeField] GameObject groundBlock;
+
     private Rigidbody2D rigidbody;
+    private AudioSource audioSource;
+
     private int grounded = 0;
+    private bool touchingBlockSide = false;
 
     void Start()
     {
@@ -29,14 +35,37 @@ public class PlayerMovement : MonoBehaviour
         BuildSurfaceMovement();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
-        grounded++;
+        if (collision.gameObject.tag == GROUND_BLOCKS_TAG)
+            grounded++;
+        else if (collision.gameObject.tag == GEM_TAG)
+        {
+            collision.gameObject.SetActive(false);
+            audioSource.PlayOneShot(SoundManager.Instance.GemCollected);
+        }
+        else if (collision.gameObject.tag == MONSTER_TAG)
+        {
+            gameObject.SetActive(false);
+            AudioSource.PlayClipAtPoint(SoundManager.Instance.PlayerKilled, gameObject.transform.position);
+        }
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    void OnTriggerExit2D(Collider2D collision)
     {
-        grounded--;
+        if (collision.gameObject.tag == GROUND_BLOCKS_TAG)
+            grounded--;
+    }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == GROUND_BLOCKS_TAG && grounded <= 0)
+            touchingBlockSide = true;   
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        touchingBlockSide = false;
     }
 
     private void BuildSurfaceMovement()
@@ -44,10 +73,13 @@ public class PlayerMovement : MonoBehaviour
         float input = Input.GetAxisRaw("Horizontal");
         float velocity = 0f;
 
-        if (input >= 0.1f)
-            velocity = WALKING_VELOCITY;
-        else if (input <= -0.1f)
-            velocity = -WALKING_VELOCITY;
+        if (!touchingBlockSide)
+        {
+            if (input >= 0.1f)
+                velocity = WALKING_VELOCITY;
+            else if (input <= -0.1f)
+                velocity = -WALKING_VELOCITY;
+        }
 
         rigidbody.velocity = new Vector2(velocity, rigidbody.velocity.y);
     }
