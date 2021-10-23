@@ -12,6 +12,7 @@ TagManager:
   - TextScore
   - TextName
   - TextLives
+  - ScreenLimits
   layers:
   - Default
   - TransparentFX

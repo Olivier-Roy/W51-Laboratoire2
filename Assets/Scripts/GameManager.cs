@@ -6,33 +6,24 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
-    private int actualLevel = 0;
-    private int score = 0;
-    private string playerName;
-    private int lives = 3;
-
-    private bool textsNotLinked = true;
 
     Text playerNameText;
     Text playerScoreText;
     Text playerLivesText;
 
+    private int score = 0;
+    private int lives = 3;
+    private string playerName;
+    private int actualLevel = 0;
+    private bool textsNotLinked = true;
+
     void Awake()
     {
         if (instance == null)
-        {
             instance = this;
-        }
         else if (instance != this)
-        {
             Destroy(gameObject);
-        }
         DontDestroyOnLoad(gameObject);
-    }
-
-    // Use this for initialization
-    void Start()
-    {
     }
 
     void Update()
@@ -40,14 +31,13 @@ public class GameManager : MonoBehaviour
         if (textsNotLinked)
         {
             textsNotLinked = false;
-            if (actualLevel == 0) return;  //pas utilise sur l'écran de titre
+            if (actualLevel == 0) return;  // Pas utilisé sur l'écran de titre
 
             playerNameText = GameObject.FindGameObjectWithTag("TextName").GetComponent<Text>();
             playerNameText.text = playerName;
 
             playerLivesText = GameObject.FindGameObjectWithTag("TextLives").GetComponent<Text>();
             playerLivesText.text = lives.ToString();
-
 
             playerScoreText = GameObject.FindGameObjectWithTag("TextScore").GetComponent<Text>();
             playerScoreText.text = score.ToString();
@@ -59,7 +49,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(RestartLevelDelay(delay, actualLevel));
     }
 
-
     public void StartNextlevel(float delay)
     {
         StartCoroutine(RestartLevelDelay(delay, GetNextLevel()));
@@ -67,7 +56,6 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator RestartLevelDelay(float delay, int level)
     {
-
         yield return new WaitForSeconds(delay);
         textsNotLinked = true;
 
@@ -99,13 +87,13 @@ public class GameManager : MonoBehaviour
         actualLevel++;
         if (actualLevel == 4)
             actualLevel = 1;
-
         return actualLevel;
     }
 
     //---------------------------------------------------------------
-    //Role "traditionnel" du Game Manager: petit donc on le garde ici
+    //Rôle "traditionnel" du Game Manager: petit donc on le garde ici
     //---------------------------------------------------------------
+
     public void AddScore(int scoreToAdd)
     {
         score += scoreToAdd;
@@ -117,5 +105,4 @@ public class GameManager : MonoBehaviour
         lives--;
         playerLivesText.text = lives.ToString();
     }
-
 }
